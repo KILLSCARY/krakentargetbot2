@@ -3,28 +3,25 @@ import sqlite3
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
-TOKEN = "8091412559:AAHgqI_YrIiVrgIQ5jWhmMvtaV_2aSglNrg"  # 🔁 Вставь сюда свой токен бота
+TOKEN = "8091412559:AAHgqI_YrIiVrgIQ5jWhmMvtaV_2aSglNrg"
 
-# --- Инициализация базы ---
+# Инициализация базы
 conn = sqlite3.connect("game.db")
 cursor = conn.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS players (user_id INTEGER PRIMARY KEY, attempts INTEGER, won INTEGER)''')
+cursor.execute('''CREATE TABLE IF NOT EXISTS players 
+                 (user_id INTEGER PRIMARY KEY, attempts INTEGER, won INTEGER)''')
 conn.commit()
 
-
-# --- Команды ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     cursor.execute("INSERT OR IGNORE INTO players (user_id, attempts, won) VALUES (?, 0, 0)", (user_id,))
     conn.commit()
     await update.message.reply_text("Привет! Угадай число от 1 до 5. У тебя 3 попытки. Напиши число.")
 
-
 async def handle_guess(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     guess_text = update.message.text
 
-    # Проверка: число ли это
     if not guess_text.isdigit():
         await update.message.reply_text("Пожалуйста, введи число от 1 до 5.")
         return
@@ -34,7 +31,6 @@ async def handle_guess(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Число должно быть от 1 до 5.")
         return
 
-    # Проверка пользователя в БД
     cursor.execute("SELECT attempts, won FROM players WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     if not row:
@@ -63,8 +59,6 @@ async def handle_guess(update: Update, context: ContextTypes.DEFAULT_TYPE):
         left = 3 - new_attempts
         await update.message.reply_text(f"Неправильно 😕 Осталось попыток: {left}")
 
-
-# --- Запуск приложения ---
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
