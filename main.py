@@ -1,15 +1,19 @@
-import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-logging.basicConfig(level=logging.INFO)
+TOKEN = "8091412559:AAHgqI_YrIiVrgIQ5jWhmMvtaV_2aSglNrg"  # Заменить на свой
 
-TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
-
+# Команда /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Привет! Это бот со скидками.")
+    await update.message.reply_text("Привет! Я бот.")
 
-if __name__ == "__main__":
+# Основной запуск
+def main():
     app = ApplicationBuilder().token(TOKEN).build()
+
     app.add_handler(CommandHandler("start", start))
+
     app.run_polling()
+
+if name == "__main__":
+    main()
